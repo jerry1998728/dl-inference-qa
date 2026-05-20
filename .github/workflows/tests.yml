@@ -1,0 +1,41 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Train models
+        run: |
+          python scripts/train_keras.py
+          python scripts/train_torch.py
+
+      - name: Export models to ONNX
+        run: |
+          python scripts/export_keras_to_onnx.py
+          python scripts/export_torch_to_onnx.py
+
+      # Performance tests are skipped in CI: shared CI runners have variable,
+      # unpredictable performance, so latency/throughput assertions would be
+      # flaky there. They run locally, in a controlled environment.
+      - name: Run test suite (functional, correctness, ONNX equivalence)
+        run: pytest -m "not performance"

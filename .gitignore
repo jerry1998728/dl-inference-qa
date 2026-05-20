@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+models/*.keras
+models/*.pt
+models/*.onnx
+.DS_Store
+data/
+models/_keras_savedmodel/
